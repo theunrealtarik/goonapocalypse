@@ -1,0 +1,6 @@
+version=2.0.0
+id=goonapocalypse
+title=Goonapocalypse
+description=In a decaying world overrun bu the dead, where every corpse hungers for your flesh, the living aren't necessarily your only enemy. Sometimes, the greatest threat comes lies much closer to home... lurking right between your legs.
+tags=b42,qol,gameplay,traits
+visibility=0

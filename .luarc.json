@@ -1,0 +1,9 @@
+{
+    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+    "workspace.library": [
+        "./lib/Goonapocalypse/library",
+        "./lib/MoodleFramework/library",
+        "./lib/Umbrella/library"
+    ],
+    "diagnostics.globals": ["MF"]
+}

@@ -1,0 +1,9 @@
+name=Goonapocalypse
+poster=poster.png
+icon=icon.png
+id=goonapocalypse
+description=DON'T OPEN THE GOONERS INSIDE
+url=https://github.com/theunrealtarik/goonapocalypse
+require=MoodleFramework
+versionMin=42.20.0
+modVersion=2.0.0

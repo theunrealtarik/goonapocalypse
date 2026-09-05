@@ -1,0 +1,15 @@
+module Base
+{
+    item SpecialLubricant
+    {
+        ItemType = base:drainable,
+        DisplayName = Special Lubricant,
+        Weight = 0.1,
+        UseDelta = 0.2,
+        Icon = Lubricant,
+        ItemSprite = Nothing,
+        Loot = true,
+        DisplayCategory = Household,
+        Category = Other
+    }
+}

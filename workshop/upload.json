@@ -1,0 +1,11 @@
+{
+    "appId": "108600",
+    "workshopId": "3588630541",
+    "title": "Goonapocalypse",
+    "previewPath": "workshop/preview.png",
+    "descriptionPath": "workshop/description.txt",
+    "patchNotePath": "workshop/patchnote.txt",
+    "tags": ["QoL", "Build 42"],
+    "visibility": 0,
+    "language": "english"
+}

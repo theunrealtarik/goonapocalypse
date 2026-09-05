@@ -1,0 +1,13 @@
+module Goonapocalypse
+{
+    character_trait_definition Goonapocalypse:Gooner
+    {
+        IsProfessionTrait = false,
+        DisabledInMultiplayer = false,
+        CharacterTrait = Goonapocalypse:Gooner,
+        Cost = -4,
+        XPBoosts = Gooner = 5,
+        UIName = UI_trait_GoonerTraitName,
+        UIDescription = UI_trait_GoonerTraitDesc,
+    }
+}
