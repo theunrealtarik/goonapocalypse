@@ -91,6 +91,13 @@ function ISGoonAction:update()
         end
     end
 
+    if getCore():getDebug() then
+        print("[GA] MaxTime: " .. tostring(self.maxTime))
+        print("[GA] Phase: " .. tostring(self.phase))
+        print("[GA] Start: " .. tostring(loop_start) .. " End: " .. tostring(loop_end))
+        print("[GA] Elapsed: " .. tostring(elapsed_time) .. " | " .. tostring(self.maxTime))
+    end
+
     local anim = ISGoonAction:resolve_animation(self.character, self.phase)
     self:setActionAnim(anim)
 end
@@ -183,7 +190,6 @@ function ISGoonAction:new(character, requirement, on_complete)
     )
 
     local total_frames = o.entryDuration + o.finishDuration + o.loopDuration * cycles
-
     o.cycles = cycles
     o.maxTime = total_frames
     return o
