@@ -1,37 +1,39 @@
 [img]https://i.ibb.co/p6gBD5L8/workshop-banner.png[/img]
 
-In a decaying world overrun bu the dead, where every corpse hungers for your flesh, the living aren't necessarily your only enemy. Sometimes, the greatest threat comes lies much closer to home... lurking right between your legs.
-
-[b]What else?[/b] [spoiler]Find it yourself 😆[/spoiler]
+In a decaying world overrun by the dead, every corpse wants your flesh. But the real danger might be much closer to home
 
 [b]Features:[/b]
-This addon adds corniness as a debuff rather than just harmless mood swing.
-
-It slows down your movement, drains endurance, and affects your comfort, temperature, panic, and even aim. Sleep might help reduce your craving but not at extreme levels.
-
-Gooning wipes the craving, calms your head, clears some stress, boredom, and unhappiness, and gives you a temporary endurance boost. Ignore it and the pressure builds every day, ramping up for the first 14 days of deprivation.
+[list]
+[*]Adds a deprivation system built around a growing craving and a corny moodle
+[*]Horniness builds over time and from certain stimuli, including sniffing underwear and reading HottieZ
+[*]At higher levels, the craving slows movement, drains endurance, hurts comfort and temperature, raises panic, and reduces aim accuracy
+[*]Relief clears the craving, reduces stress, boredom, and unhappiness, and gives a temporary endurance boost
+[*]Gooning only works when the player has a valid lubricant and an unobstructed lower body
+[*]Sleep can reduce the craving, but it does not fully solve it at extreme levels
+[*]The pressure ramps up daily for the first 14 days of deprivation, then peaks harder the longer it is ignored
+[/list]
 
 To relieve yourself:
 [olist]
-[*]Feed the craving by [i]sniffing[/i] certain underwear or reading HottieZ.
-[*]Once you see the corny moodle, find a lubricant and get to work.
-[*]Open your inventory, pick the lubricant, and choose [b]Goon[/b] — Keep your lower body unobstructed.
+[*]Find a trigger: sniff certain underwear or read HottieZ
+[*]Wait for the corny moodle to appear
+[*]Use a lubricant from your inventory and choose [b]Goon[/b]
+[*]Keep your lower body clear and your hands available
 [/olist]
-
 
 [b]HAPPY GOONING![/b]
 
 [h2]Notes:[/h2]
-
 [list]
-[*]This mod was designed with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind, so loosing your hands may hard-lock you from progressing ¯\_(ツ)_/¯
-[*]This mod was designed for singleplayer use — [i]I may add multiplayer compatibility in the near future.[/i]
-[*]It requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]Moodle Framework[/b][/url] to be installed and enabled
-[*]For a better visual experience I suggest installing [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3429790870][b]Tomb's Player Body Overhaul[/b][/url]
-[*]Despite the fact that I made custom animation for each hand and gender, I still think there's a massive amount of room for improvement so if you're an animator and you wish to contribute please check out the source code on Github
+[*]Requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]MoodleFramework[/b][/url] to be installed and enabled.
+[*]Designed for singleplayer use.
+[*]Built with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind; losing both hands can hard-lock progression.
+[*]Lower-body obstruction blocks the action.
+[*]For a better visual experience, consider [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3429790870][b]Tomb's Player Body Overhaul[/b][/url] Body
+[*]Custom animations were made for different genders and hands, but there is still room for improvement so kindly checkout the source code below and give me some help if you can :')
 [/list]
-
 
 [h2]Contribute:[/h2]
 The whole mod is fully open source and available on Github
-[url=https://github.com/theunrealtarik/goonapocalypse][img]https://img.shields.io/badge/Source-Goonapocalypse-blue?logo=github[/img][/url]
+
+[img]https://img.shields.io/badge/Source-Goonapocalypse-blue?logo=github[/img]
