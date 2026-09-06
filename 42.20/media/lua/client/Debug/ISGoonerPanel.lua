@@ -17,6 +17,12 @@ GoonerDebug = {
     }
 }
 
+function GoonerDebug:reset()
+    for k, _ in pairs(self.deltas) do
+        self.deltas[k] = 0.0
+    end
+end
+
 ---@class Section
 ---@field panel ISPanel
 ---@field title string
@@ -129,32 +135,30 @@ function GooningDebugPanel:build_sections(local_player)
     local c_overflow = GoonerState.Clarity:get_overflow(local_player)
     local has_trait = local_player:getCharacterTraits():get(GOONER_TRAIT)
 
-    local recovery_rate = GA_Math.CalcRegainRate(DecayInterval.TenMinutes, g_lvl, h_val) or 0
     local decay_rate = GA_Math.CalcDecayRate(DecayInterval.TenMinutes, g_lvl, h_val) or 0
-    local delta_rate = recovery_rate - decay_rate
 
     local phi = GA_Math.CalcPhiBuff(c_duration, g_lvl)
     local gamma = GA_Math.CalcGammaDebuff(h_val, g_lvl)
     local final_mult = GA_Math.CalcOmegaMult(h_val, c_duration, g_lvl)
 
     local survived_days = math.floor(local_player:getHoursSurvived() / 24)
-    local build_up_days = survived_days % GA_Globals.DEPRIVED_DAYS_PEAK
+    local build_up_max_day = GA_Math.CalcDeprivedPeakDay(g_lvl)
+    local build_up_days = survived_days % build_up_max_day
 
     local anim_potential_cycles = GA_Math.CalcCycles(
         GoonerState:get_perk_level(local_player),
         GoonerState.Horniness:get(local_player),
-        local_player:getPerkLevel(Perks.Fitness)
-    )
+        local_player:getPerkLevel(Perks.Fitness))
     local anim_maximum_cycles = GA_Math.ANIMATION_MAX_CYCLES
 
     table.insert(sections, Section:new(self, "Trait & Perk Info", function(sec)
-        local trait_text = has_trait and "ACTIVE (Regaining)" or "INACTIVE (Decaying)"
+        local trait_text = has_trait and "ACTIVE" or "INACTIVE"
         local trait_color = has_trait and COLOR_DEBUFF or COLOR_BUFF
         sec:coloredText(string.format("Trait Status: %s", trait_text), trait_color)
 
         sec:coloredText(string.format("Perk Level (l): %d", g_lvl), COLOR_PASSIVE)
         sec:coloredText(string.format("Horniness (m): %.1f / 100 (Lvl %d)", h_val, horniness_lvl), COLOR_PASSIVE)
-        sec:coloredText(string.format("Build up days: %d", build_up_days), COLOR_PASSIVE)
+        sec:coloredText(string.format("Build up days: %d / %d", build_up_days, build_up_max_day), COLOR_PASSIVE)
 
         sec:bar(sec.width, 10, h_val, 100, "horniness")
     end))
@@ -168,7 +172,6 @@ function GooningDebugPanel:build_sections(local_player)
     end))
 
     table.insert(sections, Section:new(self, "Rates", function(sec)
-        sec:coloredText(string.format("Recovery (+10m): +%.2f", recovery_rate), COLOR_DEBUFF)
         sec:coloredText(string.format("Decay (-10m): -%.2f", decay_rate), COLOR_BUFF)
         sec:coloredText(string.format("Delta: %.2f", delta_rate), COLOR_PASSIVE)
     end))

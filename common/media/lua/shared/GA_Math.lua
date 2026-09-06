@@ -101,18 +101,6 @@ function GA_Math.CalcDecayRate(rate, ml, mv)
     return (mv / d_time) * rate
 end
 
----@param rate DecayInterval
----@param ml number
----@param mv number
-function GA_Math.CalcRegainRate(rate, ml, mv)
-    if ml == 0 then
-        return 0
-    end
-
-    local di, df = GA_Math.GetDrainDuration(mv)
-    return math.log(ml ^ 2, 10) * GA_Math.CalcLevelMult(ml, di / df, 1.0) * rate
-end
-
 --- [0, 1]
 ---@param r number
 ---@param l number
@@ -239,6 +227,11 @@ function GA_Math.GetLevel(value, min, max, levels)
     local clamped = math.clamp(value, min, max)
     local normalized = clamped - min
     return math.floor((normalized / step) + 0.5)
+end
+
+---@param ml number
+function GA_Math.CalcDeprivedPeakDay(ml)
+    return GA_Globals.DEPRIVED_DAYS_PEAK - 1.1 * ml
 end
 
 GA_Math.CYCLES_MAX = GA_Math.CalcCycles(GA_Globals.PERK_LEVEL_MIN, GA_Globals.MODIFIER_VALUE_MAX,

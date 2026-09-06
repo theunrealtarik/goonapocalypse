@@ -7,6 +7,150 @@ require("MF_ISMoodle")
 MF.createMoodle(MoodleTag.Corny)
 MF.createMoodle(MoodleTag.Relief)
 
+
+
+local SniffingStimulus = Catalog.Stimuli.get(Catalog.StimulusKind.SniffingPanties)
+
+---@param local_player IsoPlayer
+local function player_lacks_hands(local_player)
+    return TOC_Compat and not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true)
+end
+
+---@param local_player IsoPlayer
+---@param context ISContextMenu
+---@param player_idx integer
+---@param item InventoryItem
+---@param g_lvl integer
+---@param stats Stats
+---@return boolean
+local function try_add_sniff_option(local_player, context, player_idx, item, g_lvl, stats)
+    if not SniffingStimulus:is_valid_item(item:getFullType()) then
+        return false
+    end
+    if not GoonerState.Stimuli:can_use(local_player, SniffingStimulus.kind) then
+        return false
+    end
+
+    local underwear_condition = item:getCondition()
+    local sniff_mult = GoonerState.Stimuli:get(local_player, SniffingStimulus.kind)
+
+    local function on_complete_sniffing()
+        GoonerState.Horniness:add(
+            local_player,
+            (SniffingStimulus.base_gain / 10) * underwear_condition
+            * GA_Math.CalcLevelMult(g_lvl, GA_Globals.STARTING_MULTIPLIER, GA_Globals.TARGET_MULTIPLIER)
+            * GA_Math.CalcPlayerCtxMult(local_player)
+            * sniff_mult)
+        GoonerState.Stimuli:dec(local_player, SniffingStimulus.kind)
+
+        stats:remove(CharacterStat.BOREDOM, 5 * sniff_mult)
+        stats:set(
+            CharacterStat.UNHAPPINESS,
+            (underwear_condition * sniff_mult / 10) * CharacterStat.UNHAPPINESS:getMaximumValue()
+        )
+    end
+
+    local sniff_action = ISSniffAction:new(local_player, on_complete_sniffing)
+
+    context:addOption(
+        getText("ContextMenu_action_Sniff"),
+        player_idx,
+        function()
+            if player_lacks_hands(local_player) then
+                GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
+                return
+            end
+            ISTimedActionQueue.add(sniff_action)
+        end
+    )
+
+    return true
+end
+
+---@param local_player IsoPlayer
+---@param context ISContextMenu
+---@param player_idx integer
+---@param item InventoryItem
+---@param g_lvl integer
+---@param stats Stats
+---@return boolean
+local function try_add_goon_option(local_player, context, player_idx, item, g_lvl, stats)
+    local lubricant = Catalog.Lubricants.get(item:getFullType())
+    if not lubricant then
+        return false
+    end
+
+    if GoonerState.Horniness:get_level(local_player) < 1 then
+        return false
+    end
+
+    local function on_complete_gooning(cycles)
+        -- relief
+        local use_delta = item:getUseDelta() - lubricant:consumption()
+        item:setUseDelta(use_delta)
+        if use_delta <= 0 then
+            item:Remove()
+        end
+
+        local horniness = GoonerState.Horniness:get(local_player)
+        local relieved = (horniness * cycles)
+            * GA_Math.CalcLevelMult(g_lvl,
+                GA_Globals.RELIEF_MAX_DURATION / GA_Math.RELIEF_BASE_MIN,
+                GA_Globals.RELIEF_MIN_DURATION / GA_Math.RELIEF_BASE_MAX)
+
+        GoonerState.Clarity:add(
+            local_player,
+            math.clamp(
+                relieved * (1 + lubricant.comf),
+                GA_Globals.RELIEF_MIN_DURATION,
+                GA_Globals.RELIEF_MAX_DURATION))
+
+        GoonerState.Horniness:set(local_player, 0)
+
+        local stat_value =
+            math.clamp(-1 * GoonerState:get_perk_level(local_player) / GA_Globals.PERK_LEVEL_MAX + 1, 0, 1)
+
+        stats:remove(CharacterStat.UNHAPPINESS, stat_value)
+        stats:remove(CharacterStat.BOREDOM, stat_value)
+        stats:remove(CharacterStat.STRESS, stat_value)
+
+        local cycles_ratio = cycles / GA_Math.CYCLES_MAX
+        ---@param stat CharacterStat
+        ---@param ratio number
+        local function adjust_stat(stat, ratio)
+            stats:set(stat, ratio * stat:getMaximumValue())
+        end
+
+        adjust_stat(CharacterStat.ENDURANCE, cycles_ratio)
+        if tostring(local_player:getCharacterGender()) == "Female" then
+            adjust_stat(CharacterStat.WETNESS, cycles_ratio)
+        end
+
+        local gooning_xp = GA_Globals.BASE_XP_GAIN
+            * GA_Math.CalcLevelMult(g_lvl, GA_Globals.STARTING_MULTIPLIER, GA_Globals.TARGET_MULTIPLIER)
+        local_player:getXp():AddXP(Perks.Gooner, gooning_xp, true, false, false, true)
+        GoonerLines.RollDice(local_player, GoonerLines.Relief, 20)
+    end
+
+    local gooning_action = ISGoonAction:new(local_player, lubricant.requirement, on_complete_gooning)
+
+    local function on_select_goon()
+        if player_lacks_hands(local_player) then
+            GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
+            return
+        end
+        if gooning_action:is_lowerbody_obstructed(local_player) then
+            GoonerLines.RollDice(local_player, GoonerLines.Pants, 100)
+            return
+        end
+        ISTimedActionQueue.add(gooning_action)
+    end
+
+    context:addOption(getText("ContextMenu_action_Goon"), player_idx, on_select_goon)
+
+    return true
+end
+
 Events.LevelPerk.Add(function(local_player, perk, level, increased)
     if Perks.Gooner:getName() ~= perk:getName() then
         return
@@ -40,112 +184,10 @@ Events.OnFillInventoryObjectContextMenu.Add(function(player_idx, context, ctx_it
 
     local inv_items = ISInventoryPane.getActualItems(ctx_items)
     for _, item in ipairs(inv_items) do
-        -- sniffing
-        local stimulus = assert(Catalog.Stimuli.get(Catalog.StimulusKind.SniffingPanties))
-        if stimulus:is_valid_item(item:getFullType()) and GoonerState.Stimuli:can_use(local_player, stimulus.kind) then
-            local underwear_condition = item:getCondition()
-            local sniff_mult = GoonerState.Stimuli:get(local_player, stimulus.kind)
-
-            local function on_complete_sniffing()
-                GoonerState.Horniness:add(
-                    local_player,
-                    (stimulus.base_gain / 10) * underwear_condition
-                    * GA_Math.CalcLevelMult(g_lvl, GA_Globals.STARTING_MULTIPLIER, GA_Globals.TARGET_MULTIPLIER)
-                    * GA_Math.CalcPlayerCtxMult(local_player)
-                    * sniff_mult)
-                GoonerState.Stimuli:dec(local_player, stimulus.kind)
-            end
-
-            local sniff_action = ISSniffAction:new(local_player, on_complete_sniffing)
-            stats:remove(CharacterStat.BOREDOM, 5 * sniff_mult)
-            stats:set(
-                CharacterStat.UNHAPPINESS,
-                (underwear_condition * sniff_mult / 10) * CharacterStat.UNHAPPINESS:getMaximumValue()
-            )
-
-            context:addOption(
-                getText("ContextMenu_action_Sniff"),
-                player_idx,
-                function()
-                    if TOC_Compat then
-                        if not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true) then
-                            GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
-                            return
-                        end
-                    else
-                        ISTimedActionQueue.add(sniff_action)
-                    end
-                end
-            )
+        if try_add_sniff_option(local_player, context, player_idx, item, g_lvl, stats) then
             break
         end
-
-        -- gooning
-        local lubricant = Catalog.Lubricants.get(item:getFullType())
-        if lubricant and GoonerState.Horniness:get_level(local_player) >= 1 then
-            local function on_complete_gooning(cycles)
-                -- relief
-                local use_delta = item:getUseDelta() - lubricant:consumption()
-                item:setUseDelta(use_delta)
-                if use_delta <= 0 then
-                    item:Remove()
-                end
-
-                local horniness = GoonerState.Horniness:get(local_player)
-                local relieved = (horniness * cycles)
-                    * GA_Math.CalcLevelMult(g_lvl,
-                        GA_Globals.RELIEF_MAX_DURATION / GA_Math.RELIEF_BASE_MIN,
-                        GA_Globals.RELIEF_MIN_DURATION / GA_Math.RELIEF_BASE_MAX)
-
-                GoonerState.Clarity:add(
-                    local_player,
-                    math.clamp(
-                        relieved * (1 + lubricant.comf),
-                        GA_Globals.RELIEF_MIN_DURATION,
-                        GA_Globals.RELIEF_MAX_DURATION))
-
-                GoonerState.Horniness:set(local_player, 0)
-
-                local stat_value =
-                    math.clamp(-1 * GoonerState:get_perk_level(local_player) / GA_Globals.PERK_LEVEL_MAX + 1, 0, 1)
-
-                stats:remove(CharacterStat.UNHAPPINESS, stat_value)
-                stats:remove(CharacterStat.BOREDOM, stat_value)
-                stats:remove(CharacterStat.STRESS, stat_value)
-
-                local cycles_ratio = cycles / GA_Math.CYCLES_MAX
-                ---@param stat CharacterStat
-                ---@param ratio number
-                local function adjust_stat(stat, ratio)
-                    stats:set(stat, ratio * stat:getMaximumValue())
-                end
-
-                adjust_stat(CharacterStat.ENDURANCE, cycles_ratio)
-                if tostring(local_player:getCharacterGender()) == "Female" then
-                    adjust_stat(CharacterStat.WETNESS, cycles_ratio)
-                end
-
-                local gooning_xp = GA_Globals.BASE_XP_GAIN
-                    * GA_Math.CalcLevelMult(g_lvl, GA_Globals.STARTING_MULTIPLIER, GA_Globals.TARGET_MULTIPLIER)
-                local_player:getXp():AddXP(Perks.Gooner, gooning_xp, true, false, false, true)
-                GoonerLines.RollDice(local_player, GoonerLines.Relief, 20)
-            end
-
-            local gooning_action = ISGoonAction:new(local_player, lubricant.requirement, on_complete_gooning)
-            local function on_select_goon()
-                if TOC_Compat then
-                    if not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true) then
-                        GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
-                        return
-                    end
-                end
-                if gooning_action:is_lowerbody_obstructed(local_player) then
-                    GoonerLines.RollDice(local_player, GoonerLines.Pants, 100)
-                    return
-                end
-                ISTimedActionQueue.add(gooning_action)
-            end
-            context:addOption(getText("ContextMenu_action_Goon"), player_idx, on_select_goon)
+        if try_add_goon_option(local_player, context, player_idx, item, g_lvl, stats) then
             break
         end
     end
@@ -210,7 +252,7 @@ Events.OnPlayerUpdate.Add(function()
 
 
     if h_lvl >= 1 or r_dur > 0 then
-        local panic_delta = -1 * omega * 0.5 * dt
+        local panic_delta = -1 * omega * 0.25 * dt
         stats:add(CharacterStat.PANIC, panic_delta)
         GoonerDebug.deltas.panic = panic_delta
 
@@ -254,41 +296,20 @@ Events.EveryDays.Add(function()
         return
     end
 
-    local d_max = 1.1 * GoonerState:get_perk_level(local_player) + 3
+    local d_max = GA_Math.CalcDeprivedPeakDay(GoonerState:get_perk_level(local_player))
     local d_survived = math.floor(local_player:getHoursSurvived() / 24)
-    local d_cycles = d_survived % GA_Globals.DEPRIVED_DAYS_PEAK
+    local d_cycles = d_survived % d_max
     if not GoonerState.Clarity:is_clear(local_player) and d_cycles < d_max then
         local function dep_exp(d)
-            return GA_Math.CalcDynExpInterp(d, 1,
-                GA_Globals.DEPRIVED_DAYS_MODIFIER_PEAK + 1,
-                GA_Globals.DEPRIVED_DAYS_PEAK) - 1
+            return
+                GA_Math.CalcDynExpInterp(d, 1, GA_Globals.DEPRIVED_DAYS_MODIFIER_PEAK + 1, d_max) - 1
         end
-
         local dep_delta = dep_exp(d_cycles) - dep_exp(d_cycles - 1)
         GoonerState.Horniness:add(local_player, dep_delta)
     end
 end)
 
-
 Events.EveryTenMinutes.Add(function()
-    local local_player = getPlayer()
-    if not local_player then
-        return
-    end
-
-    local g_lvl = GoonerState:get_perk_level(local_player)
-    local h_val = GoonerState.Horniness:get(local_player)
-
-    local traits = local_player:getCharacterTraits()
-    if traits:get(GOONER_TRAIT) and not GoonerState.Clarity:is_clear(local_player) then
-        GoonerState.Horniness:add(local_player, GA_Math.CalcRegainRate(DecayInterval.TenMinutes, g_lvl, h_val))
-        return
-    end
-
-    -- GoonerState.Horniness:add(local_player, -GA_Math.CalcDecayRate(DecayInterval.TenMinutes, g_lvl, h_val))
-end)
-
-Events.EveryOneMinute.Add(function()
     local local_player = getPlayer()
     if not local_player then return end
 
@@ -358,7 +379,6 @@ Events.OnPlayerUpdate.Add(function(local_player)
     )
 end)
 
--- Clean up
 Events.OnPlayerDeath.Add(function(local_player)
     GoonerState:Reset(local_player)
 end)
