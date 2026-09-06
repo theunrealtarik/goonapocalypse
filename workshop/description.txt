@@ -25,10 +25,10 @@ To relieve yourself:
 
 [h2]Notes:[/h2]
 [list]
-[*]Requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]MoodleFramework[/b][/url] to be installed and enabled.
-[*]Designed for singleplayer use.
+[*]Designed for singleplayer use — I might work on multiplayer compatibility in the future ¯\_(ツ)_/¯
+[*]Requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]MoodleFramework[/b][/url] to be installed and enabled
 [*]Built with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind; losing both hands can hard-lock progression.
-[*]Lower-body obstruction blocks the action.
+[*]Lower-body obstruction blocks the action
 [*]For a better visual experience, consider [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3429790870][b]Tomb's Player Body Overhaul[/b][/url] Body
 [*]Custom animations were made for different genders and hands, but there is still room for improvement so kindly checkout the source code below and give me some help if you can :')
 [/list]
