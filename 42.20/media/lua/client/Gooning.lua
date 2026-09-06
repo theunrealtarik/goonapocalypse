@@ -7,14 +7,10 @@ require("MF_ISMoodle")
 MF.createMoodle(MoodleTag.Corny)
 MF.createMoodle(MoodleTag.Relief)
 
-
-
-
 Events.LevelPerk.Add(function(local_player, perk, level, increased)
     if Perks.Gooner:getName() ~= perk:getName() then
         return
     end
-
 
     print(perk:getName())
     local traits = local_player:getCharacterTraits()
@@ -27,8 +23,10 @@ Events.LevelPerk.Add(function(local_player, perk, level, increased)
     end
 end)
 
-Events.OnFillInventoryObjectContextMenu.Add(function(player_num, context, ctx_items)
-    local local_player = getSpecificPlayer(player_num)
+
+
+Events.OnFillInventoryObjectContextMenu.Add(function(player_idx, context, ctx_items)
+    local local_player = getSpecificPlayer(player_idx)
     if not local_player then
         return
     end
@@ -38,13 +36,6 @@ Events.OnFillInventoryObjectContextMenu.Add(function(player_num, context, ctx_it
 
     if GoonerState.Clarity:is_clear(local_player) then
         return
-    end
-
-    if TOC_Compat then
-        if not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true) then
-            GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
-            return
-        end
     end
 
     local inv_items = ISInventoryPane.getActualItems(ctx_items)
@@ -74,9 +65,16 @@ Events.OnFillInventoryObjectContextMenu.Add(function(player_num, context, ctx_it
 
             context:addOption(
                 getText("ContextMenu_action_Sniff"),
-                player_num,
+                player_idx,
                 function()
-                    ISTimedActionQueue.add(sniff_action)
+                    if TOC_Compat then
+                        if not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true) then
+                            GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
+                            return
+                        end
+                    else
+                        ISTimedActionQueue.add(sniff_action)
+                    end
                 end
             )
             break
@@ -133,22 +131,21 @@ Events.OnFillInventoryObjectContextMenu.Add(function(player_num, context, ctx_it
                 GoonerLines.RollDice(local_player, GoonerLines.Relief, 20)
             end
 
-            local gooning_action = ISGoonAction:new(
-                local_player,
-
-                lubricant.requirement,
-                on_complete_gooning)
-            context:addOption(
-                getText("ContextMenu_action_Goon"),
-                player_num,
-                function()
-                    if gooning_action:is_lowerbody_obstructed(local_player) then
-                        GoonerLines.RollDice(local_player, GoonerLines.Pants, 100)
-                    else
-                        ISTimedActionQueue.add(gooning_action)
+            local gooning_action = ISGoonAction:new(local_player, lubricant.requirement, on_complete_gooning)
+            local function on_select_goon()
+                if TOC_Compat then
+                    if not TOC_Compat.hasHand(local_player, false) and not TOC_Compat.hasHand(local_player, true) then
+                        GoonerLines.RollDice(local_player, GoonerLines.Amputated, 50)
+                        return
                     end
                 end
-            )
+                if gooning_action:is_lowerbody_obstructed(local_player) then
+                    GoonerLines.RollDice(local_player, GoonerLines.Pants, 100)
+                    return
+                end
+                ISTimedActionQueue.add(gooning_action)
+            end
+            context:addOption(getText("ContextMenu_action_Goon"), player_idx, on_select_goon)
             break
         end
     end
@@ -257,9 +254,10 @@ Events.EveryDays.Add(function()
         return
     end
 
+    local d_max = 1.1 * GoonerState:get_perk_level(local_player) + 3
     local d_survived = math.floor(local_player:getHoursSurvived() / 24)
     local d_cycles = d_survived % GA_Globals.DEPRIVED_DAYS_PEAK
-    if not GoonerState.Clarity:is_clear(local_player) and d_cycles < GA_Globals.DEPRIVED_DAYS_PEAK then
+    if not GoonerState.Clarity:is_clear(local_player) and d_cycles < d_max then
         local function dep_exp(d)
             return GA_Math.CalcDynExpInterp(d, 1,
                 GA_Globals.DEPRIVED_DAYS_MODIFIER_PEAK + 1,

@@ -38,6 +38,5 @@ GA_Globals = {
     RELIEF_MAX_DURATION = 48, ---@type Duration
     RELIEF_MIN_DURATION = 4, ---@type Duration
 
-    DEPRIVED_DAYS_PEAK = 14,
     DEPRIVED_DAYS_MODIFIER_PEAK = 100,
 }
