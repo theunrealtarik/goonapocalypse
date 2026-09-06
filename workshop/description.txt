@@ -15,9 +15,9 @@ In a decaying world overrun by the dead, every corpse wants your flesh. But the 
 
 To relieve yourself:
 [olist]
-[*]Find a trigger: sniff certain underwear or read HottieZ
-[*]Wait for the corny moodle to appear
-[*]Use a lubricant from your inventory and choose [b]Goon[/b]
+[*]Get your self in the mood by either sniffing certain underwear or reading HottieZ
+[*]Grind your way up waiting for the corny moodle to appear
+[*]Use a proper lubricant from your inventory and choose [b]Goon[/b]
 [*]Keep your lower body clear and your hands available
 [/olist]
 
@@ -27,8 +27,8 @@ To relieve yourself:
 [list]
 [*]Designed for singleplayer use — I might work on multiplayer compatibility in the future ¯\_(ツ)_/¯
 [*]Requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]MoodleFramework[/b][/url] to be installed and enabled
-[*]Built with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind; losing both hands can hard-lock progression.
-[*]Lower-body obstruction blocks the action
+[*]Built with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind; losing both hands can hard-lock progression
+[*]Lower-body obstruction blocks the action so
 [*]For a better visual experience, consider [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3429790870][b]Tomb's Player Body Overhaul[/b][/url] Body
 [*]Custom animations were made for different genders and hands, but there is still room for improvement so kindly checkout the source code below and give me some help if you can :')
 [/list]
