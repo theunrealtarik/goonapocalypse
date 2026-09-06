@@ -25,7 +25,7 @@ To relieve yourself:
 
 [h2]Notes:[/h2]
 [list]
-[*]Designed for singleplayer use — I might work on multiplayer compatibility in the future ¯\_(ツ)_/¯
+[*]Designed for singleplayer use for the latest stable 42.20 stable build — I might work on multiplayer and backward compatibility in the future ¯\_(ツ)_/¯
 [*]Requires [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3396446795][b]MoodleFramework[/b][/url] to be installed and enabled
 [*]Built with [url=https://steamcommunity.com/workshop/filedetails/?id=3580276809][b]The Only Cure[/b][/url] in mind; losing both hands can hard-lock progression
 [*]Lower-body obstruction blocks the action so
