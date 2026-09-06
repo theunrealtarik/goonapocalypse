@@ -7,6 +7,7 @@ param(
     [switch]$All,
 
     [switch]$NoAutoInstall,
+    [switch]$NoCleanupAfterUpload,
 
     [string]$ModName = "Goonapocalypse",
 
@@ -313,6 +314,7 @@ function Invoke-Upload
     param(
         [Parameter(Mandatory)][string]$ModName,
         [Parameter(Mandatory)][string]$ContentPath,
+        [Parameter(Mandatory)][string]$PackageRoot,
         [Parameter(Mandatory)][string]$SteamUploaderPath,
         [Parameter(Mandatory)][string]$AppId,
         [string]$WorkshopId,
@@ -323,7 +325,8 @@ function Invoke-Upload
         [string]$PatchNotePath,
         [string]$Tags,
         [int]$Visibility = -1,
-        [string]$Language
+        [string]$Language,
+        [switch]$CleanupAfterUpload
     )
 
     $Uploader = Get-Command $SteamUploaderPath -ErrorAction SilentlyContinue
@@ -397,6 +400,15 @@ function Invoke-Upload
     }
 
     Write-Host "Upload complete."
+
+    if ($CleanupAfterUpload)
+    {
+        if ($PSCmdlet.ShouldProcess($PackageRoot, "Delete local package folder"))
+        {
+            Remove-Item -LiteralPath $PackageRoot -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "Cleaned up local package folder: $PackageRoot"
+        }
+    }
 }
 
 if ($All)
@@ -431,6 +443,8 @@ if (-not ($Install -or $Package -or $Run -or $Upload))
     Write-Host "             -Title -Visibility 0-3 -Language -SteamUploaderPath -AppId"
     Write-Host "             Defaults for all of these can live in workshop\upload.json;"
     Write-Host "             any flag passed on the command line overrides the file."
+    Write-Host "             Deletes the local package folder after a successful upload;"
+    Write-Host "             pass -NoCleanupAfterUpload to keep it around."
     Write-Host "  -All       Shorthand for -Install and -Package."
     return
 }
@@ -474,10 +488,10 @@ if ($Package)
 
 if ($Upload)
 {
-    Invoke-Upload -ModName $ModName -ContentPath $UploadContent -SteamUploaderPath $SteamUploaderPath `
+    Invoke-Upload -ModName $ModName -ContentPath $UploadContent -PackageRoot $WorkshopRoot -SteamUploaderPath $SteamUploaderPath `
         -AppId $RAppId -WorkshopId $RWorkshopId -NewWorkshopItem:$NewWorkshopItem -Title $RTitle `
         -PreviewPath $RPreviewPath -DescriptionPath $RDescriptionPath -PatchNotePath $RPatchNotePath `
-        -Tags $RTags -Visibility $RVisibility -Language $RLanguage
+        -Tags $RTags -Visibility $RVisibility -Language $RLanguage -CleanupAfterUpload:(-not $NoCleanupAfterUpload)
 }
 
 if ($Run)
