@@ -1,5 +1,6 @@
 -- i hate writing ui code, claude got this shit for me
 local GA_Math = require("GA_Math")
+local Catalog = require("GA_Catalog")
 
 require "ISUI/ISPanel"
 require "ISUI/ISTickBox"
@@ -173,7 +174,6 @@ function GooningDebugPanel:build_sections(local_player)
 
     table.insert(sections, Section:new(self, "Rates", function(sec)
         sec:coloredText(string.format("Decay (-10m): -%.2f", decay_rate), COLOR_BUFF)
-        sec:coloredText(string.format("Delta: %.2f", delta_rate), COLOR_PASSIVE)
     end))
 
     -- Multipliers
@@ -190,7 +190,6 @@ function GooningDebugPanel:build_sections(local_player)
         sec:coloredText(string.format(" - Omega: %.3fx", final_mult), final_color)
     end))
 
-    local Catalog = require("GA_Catalog")
     if Catalog.StimulusKind then
         table.insert(sections, Section:new(self, "Stimuli Mults", function(sec)
             for kind_name, kind_val in pairs(Catalog.StimulusKind) do
